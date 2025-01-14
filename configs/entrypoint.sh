@@ -76,22 +76,9 @@ then
     DNS_RESOLVERS=$DEFAULT_RESOLVERS
 fi
 
-# update the auth token
-if [ "$REGISTRY_ID" = "" ]
-then 
-    aws_cli_exec=$(aws ecr get-login --no-include-email)
-else
-    aws_cli_exec=$(aws ecr get-login --no-include-email --registry-ids $REGISTRY_ID)
-fi
-auth=$(grep  X-Forwarded-User ${nx_conf} | awk '{print $4}'| uniq|tr -d "\n\r")
-token=$(echo "${aws_cli_exec}" | awk '{print $6}')
-auth_n=$(echo AWS:${token}  | base64 |tr -d "[:space:]")
-reg_url=$(echo "${aws_cli_exec}" | awk '{print $7}')
-
-sed -i "s|${auth%??}|${auth_n}|g" ${nx_conf}
-sed -i "s|REGISTRY_URL|$reg_url|g" ${nx_conf}
 sed -i "s|DNS_RESOLVERS|$DNS_RESOLVERS|g" ${nx_conf}
 
+/auth_update.sh
 /renew_token.sh &
 
 exec "$@"
