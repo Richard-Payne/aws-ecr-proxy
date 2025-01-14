@@ -3,8 +3,10 @@ FROM nginx:1.12.0-alpine
 RUN apk -v --update add \
         python \
         py-pip \
+        ca-certificates \
         && \
-    pip install --upgrade pip awscli==1.11.92 && \
+    update-ca-certificates && \
+    pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --upgrade pip awscli && \
     apk -v --purge del py-pip && \
     rm /var/cache/apk/*
 
